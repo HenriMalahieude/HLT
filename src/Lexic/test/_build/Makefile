@@ -1,83 +1,58 @@
 CC = gcc
-FLAGS = -Wall -Wextra -g
+FLAGS = -Wall -Wextra -g -Og
+XTRA_FLAGS ?=
+
+HLP_DIR := ../../../helpers
+SRC_DIR := ../../private
 
 #Ordered in how foundational it is
+DEPS := warn.o		\
+	file_to_str.o	\
+	trim.o		\
+	match.o		\
+	validate.o	\
+	vocab.o		\
+	name.o		\
+	token.o
 
-all: warn.o match.o validate.o vocab.o file_to_str.o trim.o
-	@echo 'Lexic Comprehensive Test'
-	@$(CC) ../all_test.c ../name.c ../vocab.c ../token.c \
-		../group.c ../qualifier.c ../escaped.c ../brackets.c ../or.c ../direct.c \
-		../../private/name.c ../../private/token.c \
-		warn.o match.o validate.o vocab.o file_to_str.o trim.o \
-		-D ALL_TESTS -o test_all $(FLAGS)
+#Also ordered in foundational
+INDV_TESTS := direct escaped brackets qualifier group or vocab name token
 
-lxc_name: warn.o match.o validate.o vocab.o file_to_str.o trim.o
-	@echo 'Token Name Stream Tests'
-	@$(CC) ../name.c ../../private/name.c ../../private/token.c vocab.o warn.o match.o validate.o trim.o file_to_str.o -D VERBOSE -o test_token_name $(FLAGS)
+.PHONY: all all_indv clean help
+.SUFFIXES: 
 
-lxc_token: warn.o match.o validate.o vocab.o file_to_str.o trim.o
-	@echo 'Token Stream Tests'
-	@$(CC) ../token.c ../../private/token.c vocab.o warn.o match.o validate.o trim.o file_to_str.o -D VERBOSE -o test_token_stream $(FLAGS)
+NULL :=
+TAB := $(NULL)    $(NULL)
+define ENDL
 
-lxc_vocab: vocab.o warn.o validate.o file_to_str.o trim.o
-	@echo 'Vocab Make Tests'
-	@$(CC) ../vocab.c vocab.o warn.o validate.o file_to_str.o trim.o -D VERBOSE -o test_vocab_make $(FLAGS)
 
-rgx_all: match.o warn.o
-	@echo 'All Regex Tests'
-	@$(CC) ../all_regex.c warn.o match.o ../group.c ../qualifier.c ../escaped.c ../brackets.c ../or.c ../direct.c -D ALL_TESTS -o test_regex_all $(FLAGS)
+endef
 
-rgx_or: match.o warn.o
-	@echo 'Regex Or Test'
-	@$(CC) ../or.c warn.o match.o -D VERBOSE -o test_regex_or $(FLAGS)
+help:
+	$(info Indivdual Tests: $(ENDL)$(TAB)$(INDV_TESTS))
+	$(info Batch Build: $(ENDL)$(TAB)all_indv)
+	$(info Single Comprehensive Test: $(ENDL)$(TAB)all)
 
-rgx_group: match.o warn.o
-	@echo 'Regex Group Test'
-	@$(CC) ../group.c match.o warn.o -D VERBOSE -o test_regex_group $(FLAGS)
+all: $(DEPS)
+	$(CC) -o $@ ../all_test.c $(addsuffix .c,$(addprefix ../,$(INDV_TESTS))) $(DEPS) -I $(HLP_DIR) -DALL_TESTS
 
-rgx_qualifier: match.o warn.o
-	@echo 'Regex Qualifier Test'
-	@$(CC) ../qualifier.c match.o warn.o -D VERBOSE -o test_regex_qualifier $(FLAGS)
+all_indv: $(INDV_TESTS)
 
-rgx_brackets: match.o warn.o
-	@echo 'Regex Brackets Test'
-	@$(CC) ../brackets.c warn.o match.o -D VERBOSE -o test_regex_brackets $(FLAGS)
+$(INDV_TESTS): $(DEPS)
+	$(CC) -o $@ ../$@.c $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS) -I $(HLP_DIR)
 
-rgx_escaped: match.o warn.o
-	@echo 'Regex Escaped Test'
-	@$(CC) ../escaped.c warn.o match.o -D VERBOSE -o test_regex_escaped $(FLAGS)
+#Helpers
+warn.o: $(HLP_DIR)/log/warn.c $(HLP_DIR)/log/warn.h
+	$(CC) -c $< $(FLAGS)
 
-rgx_direct: match.o warn.o
-	@echo 'Regex Direct Test'
-	@$(CC) ../direct.c warn.o match.o -D VERBOSE -o test_regex_direct $(FLAGS)
+file_to_str.o: $(HLP_DIR)/string/file_to_str.c
+	$(CC) -c $< $(FLAGS)
 
-rgx_validate: validate.o warn.o
-	@echo 'Regex Validation Test'
-	@$(CC) ../validation.c validate.o warn.o -D VERBOSE -o test_regex_validation $(FLAGS)
+trim.o: $(HLP_DIR)/string/trim.c
+	$(CC) -c $< $(FLAGS)
 
-trim.o: ../../../helpers/string/handy.h ../../../helpers/string/trim.c
-	@echo 'trim.o'
-	@$(CC) ../../../helpers/string/trim.c -c $(FLAGS)
-
-file_to_str.o: ../../../helpers/string/handy.h ../../../helpers/string/file_to_str.c
-	@echo 'file_to_str.o'
-	@$(CC) ../../../helpers/string/file_to_str.c -c $(FLAGS)
-
-vocab.o: ../../lexic.h ../../private/lexic_internal.h ../../private/vocab.c
-	@echo 'vocab.c -> .o'
-	@$(CC) ../../private/vocab.c -c $(FLAGS)
-
-match.o: ../../lexic.h ../../private/regex.h ../../private/match.c
-	@echo 'match.c -> .o'
-	@$(CC) ../../private/match.c -c $(FLAGS)
-
-validate.o: ../../lexic.h ../../private/regex.h ../../private/validate.c
-	@echo 'validate.c -> .o'
-	@$(CC) ../../private/validate.c -c $(FLAGS)
-
-warn.o: ../../../helpers/log/warn.h ../../../helpers/log/warn.c
-	@echo 'warn.c -> .o'
-	@$(CC) ../../../helpers/log/warn.c -c $(FLAGS)
+%.o: $(SRC_DIR)/%.c
+	$(CC) -c $< $(FLAGS) -I $(HLP_DIR)
 
 clean:
 	@echo 'Removing all object and executables'

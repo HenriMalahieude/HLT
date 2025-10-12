@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../private/regex.h"
+#include "regex_helper.h"
 
 bool TEST_VALIDATE(char *rgx, bool result_to) {
 	bool val = (RegexValidate(rgx) == result_to);

@@ -5,8 +5,6 @@
 #include <string.h>
 
 #include "../private/lexic_internal.h"
-#include "../../helpers/log/warn.h"
-#include "../private/regex.h"
 
 #ifndef TEST_NAME
 	#define TEST_NAME "UNDEFINED"

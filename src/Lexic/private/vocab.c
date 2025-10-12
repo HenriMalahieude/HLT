@@ -3,11 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "../lexic.h"
 #include "lexic_internal.h"
-#include "regex.h"
-#include "../../helpers/log/warn.h"
-#include "../../helpers/string/handy.h"
 
 int regex_line_no = 0; //arbitrary location
 int regex_colu_no = 0;

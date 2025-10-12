@@ -3,12 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../lexic.h"
-#include "regex.h"
 #include "lexic_internal.h"
-#include "../../helpers/log/warn.h"
-#include "../../helpers/string/handy.h"
-
 
 //returns the index of the matching token definition to input, or -1 if no match
 int match_within_vocabulary(struct lxc_vocabulary *vocab, char *input) {	

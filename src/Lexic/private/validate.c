@@ -1,8 +1,6 @@
 #include <string.h>
 
 #include "lexic_internal.h"
-#include "regex.h"
-#include "../../helpers/log/warn.h"
 
 //Takes control of regex_colu_no
 bool RegexValidate(char *reg) {

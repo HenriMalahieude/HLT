@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../lexic.h"
-#include "../private/lexic_internal.h"
+#include "regex_helper.h"
 
 bool CompareResults(char **output, char **expected, int *error_index) {
 	int i = 0; *error_index = 0;

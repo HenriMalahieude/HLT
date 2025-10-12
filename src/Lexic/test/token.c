@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../lexic.h"
-#include "../private/lexic_internal.h"
+#include "regex_helper.h"
 
 #ifndef ALL_TESTS
 int test_count = 1;

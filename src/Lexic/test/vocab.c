@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../lexic.h"
-#include "../private/lexic_internal.h"
+#include "regex_helper.h"
 
 #ifndef ALL_TESTS
 int test_count = 1;
@@ -13,7 +12,7 @@ extern int test_count;
 
 static bool ReportResult(char *msg, bool result) {
 #ifdef VERBOSE
-	printf("[%d] Vocab Test (%s): %d\n", test_count, msg, result);
+	printf("[%d] Vocab Test (%s): %s\n", test_count, msg, (result) ? "[+]" : "[X]");
 #else
 	if (!result) printf("[X] Vocab Test (%s) failed\n", msg);
 #endif
@@ -64,7 +63,7 @@ bool VocabularyMakeTests(){
 	if (!ReportResult("String3", strcmp(first->definitions[1].regex, "11") == 0)) return false;
 
 #ifdef VERBOSE
-	printf("[!] Starting Vocabulary Make Tests\n");
+	printf("[!] Finished Vocabulary Make Tests Successfully\n");
 #endif
 	return true;
 }

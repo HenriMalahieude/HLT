@@ -1,12 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../lexic.h"
 #include "lexic_internal.h"
-#include "../../helpers/log/warn.h"
-#include "../../helpers/string/handy.h"
-#include "regex.h"
-
 
 char ** LexicTokenNamesFromFile(char *file_name, LexicVocabulary *vocab) {
 	if (file_name == NULL || file_name[0] == '\0') {

@@ -2,8 +2,7 @@
 #include <stdio.h> //while printf is being used
 #include <ctype.h>
 
-#include "../../helpers/log/warn.h"
-#include "regex.h"
+#include "lexic_internal.h"
 
 enum regex_type {
 	RT_UNDEFINED,
