@@ -56,7 +56,7 @@ void LL1TableCalculate(SyntacBook *book) {
 		//If it's epsilon, apply to all follows, else to all firsts
 		char **set_to_work = ((epsi_rule) ? rule->first_set : rule->follow_set);
 		for (int j = 0; set_to_work[j] != NULL; j++) {
-			char *elm = set_to_work[j];
+			char *elm = set_to_work[j]; //NOTE: will contain ENDMRKR in follow set, no need to worry
 			LL1TableEntryAdd(book->ll1_table, rule->name, elm, i);
 		}
 	}
@@ -77,7 +77,8 @@ struct stc_tree_node * InitTreeNode(enum stc_parsing_style typ, char *rule) {
 }
 
 int FindStartingRule(struct stc_book *book) {
-	char **id = SetCreate(1, ENDMRKR); //starting rule should have no following tokens
+	char *id[2] = {ENDMRKR, NULL}; //no need to use heap here
+	//char **id = SetCreate(1, ENDMRKR); //starting rule should have no following tokens
 	
 	int start_rule = -1;
 	for (int i = 0; i < book->rule_count; i++) {
@@ -88,7 +89,7 @@ int FindStartingRule(struct stc_book *book) {
 	}
 	
 	if (start_rule == -1) HLT_ERR("LL1 Grammar could not identify a starting symbol? (No Rule w/ Follow Set = { $ })");
-	SetFree(id); id = NULL;
+	//SetFree(id); id = NULL;
 	return start_rule;
 }
 
