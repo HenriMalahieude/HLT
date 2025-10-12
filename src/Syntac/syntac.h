@@ -10,12 +10,12 @@ typedef enum stc_parsing_style {
 	STC_NON = 0,
 	STC_LL1,
 	STC_LR1,
-	STC_SZ,
+	STC_PARSE_CNT,
 } SyntacParseType;
 
 //secondary names
-#define STC_TOP STC_LL1 //Top-Down (LL1)
-#define STC_BOT STC_LR1 //Bottom-Up (LR1)
+#define STC_TOPDN STC_LL1 //Top-Down (LL1)
+#define STC_BOTUP STC_LR1 //Bottom-Up (LR1)
 
 typedef struct stc_tree_node {
 	SyntacParseType type;
