@@ -57,7 +57,7 @@ $(OUTLIB)/%.so: $(DYN_OBJS)
 
 $(DYNAMI_OUTDIR)/%.o: $(SRC_LOC)/%.c $(SRC_HDRS) $(HLP_HDRS)
 	$(info [.d$(ABRV)]$(TAB)$(TAB)$(notdir $@))
-	$(CC) $< -c -o $@ $(BFLAGS) $(DY_FLAGS)
+	$(CC) $< -c -o $@ $(BFLAGS) $(DY_FLAGS) -I $(HLP_LOC)
 
 # Static Library Creation
 $(OUTLIB)/%.a: $(STT_OBJS)
@@ -66,7 +66,7 @@ $(OUTLIB)/%.a: $(STT_OBJS)
 
 $(STATIC_OUTDIR)/%.o: $(SRC_LOC)/%.c $(SRC_HDRS) $(HLP_HDRS)
 	$(info [.o$(ABRV)]$(TAB)$(TAB)$(notdir $@))
-	$(CC) $< -c -o $@ $(BFLAGS)
+	$(CC) $< -c -o $@ $(BFLAGS) -I $(HLP_LOC)
 
 $(STATIC_OUTDIR) $(DYNAMI_OUTDIR):
 	mkdir -p $@

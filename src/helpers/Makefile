@@ -8,7 +8,7 @@ STATIC_OUTDIR := $(OUTDIR)/object
 DYNAMI_OUTDIR := $(OUTDIR)/shared
 
 #NOTE: NEEDS UNIQUE .c FILE NAMES
-$(info [!!!] Ensure that all .c files are unique!)
+$(info [!!!] Ensure that all .c file names are unique!)
 SPACE := $(subst ,, )
 VPATH := $(subst $(SPACE),:,$(shell ls -d $(SRC_LOC)/*/))
 
