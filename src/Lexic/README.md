@@ -99,11 +99,11 @@ int main(void) {
 ```
 
 #### Single Lookahead
-Lexic only has a single lookahead, which should be sufficient for most languages. But it's important to consider your regex's.
+Lexic only has a single lookahead, which should be sufficient for most languages. But it's important to consider your regexes.
 
 For example, `-?[0-9]+(\.[0-9]+)?` may seem like a reasonable regex to hand Lexic for any and all numbers. However, because of the lookahead a number such as '-5.6' will be parsed as two separate numbers: '-5' and '6', the '.' will be dropped.
 
-Why is that? Well as stated before Lexic only has a single lookahead. As it's considering what Token to produce, it will consume up to "-5" and say, ok this matches a number. It then looks ahead to see '-5.', according to the last half of the regex we provided, `(\.[0-9]+)?`, the regex will not consume the period because it's missing a number after the period. Therefore it will consume '-5' as a singular number and move on to produce more tokens. But it didn't look any more ahead to see the 6 which would've matched.
+Why is that? Well, as stated before, Lexic only has a single lookahead. As it's considering what Token to produce, it will consume up to "-5" and say, ok this matches a number. It then looks ahead to see '-5.', according to the last half of the regex we provided, `(\.[0-9]+)?`, the regex will not consume the period because it's missing a number after the period. Therefore it will consume '-5' as a singular number and move on to produce more tokens. But it didn't look any more ahead to see the 6 which would've matched.
 
 The regex only needs to be simplified: `-?[0-9]+\.?[0-9]*`, now "-5.6" will be completely consumed because '-5.' is a valid token.
 
@@ -111,6 +111,6 @@ If you'd like to prevent '-5.' to be tokenized, you could attempt to break up th
 
 ---
 ### Using the CLI Tool
-It's fairly standard. You may either `./lexic_cli` or `./lexic_cli file.cpp` to launch. Afterwards, it will allow you to create your own vocabulary if you didn't supply it with a file, and then it will tokenize strings you give it.
+Navigate to the examples folder in the root, and then build it. You may either `./lexic_cli` or `./lexic_cli file.cpp` to launch. Afterwards, it will allow you to create your own vocabulary if you didn't supply it with a file, and then it will tokenize strings you give it.
 
-That's it really. If you'd like to see how it was made you can look at [this](https://youtu.be/9clwgveTgrs).
+If you'd like to see how it was made you can look at [this](https://youtu.be/9clwgveTgrs).
