@@ -67,7 +67,7 @@ Once you've defined your vocabulary, you can ask lexic to produce you some token
 #include "lexic.h"
 
 int main(void) {
-    LexicVocabulary *vocab = LexicVocabularyFromString("ALPHA: \S+\nWSPACE: \s+");
+    LexicVocabulary *vocab = LexicVocabularyFromString("ALPHA: \\S+\nWSPACE: \\s+");
     
     //end of array delineated with stream[?].definition_name == NULL
     LexicToken *str_strm = LexicTokensFromString("\nword and whitespace", vocab);
