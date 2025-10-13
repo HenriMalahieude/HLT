@@ -16,7 +16,7 @@ jobs:
     - name: Compile the tests
       run: |
         cd src/Lexic/test/_build/
-        make
+        make all
         
     - name: Run tests
       run: |
