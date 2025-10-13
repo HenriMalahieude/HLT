@@ -1,5 +1,9 @@
 #include "../syntac.h"
-#include "sets.h"
+
+//Helpers
+#include "sets/sets.h"
+#include "string/handy.h"
+#include "log/warn.h"
 
 #ifndef __HEPH_INTERNAL_PRIVATE_SYNTAC__
 #define __HEPH_INTERNAL_PRIVATE_SYNTAC__

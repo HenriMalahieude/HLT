@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
+
 #include "syntac_internal.h"
-#include "../../helpers/log/warn.h"
 
 //Each rule has a first set of tokens reachable from that rule, which may not be "complete" for all that share the same rule_name
 //	this helper function collects them all into a single set for all rules that share a name

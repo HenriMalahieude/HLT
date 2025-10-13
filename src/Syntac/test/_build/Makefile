@@ -1,5 +1,5 @@
 CC := gcc
-FLAGS := -Wall -Wextra -g
+FLAGS := -Wall -Wextra -g -Og
 XTRA_FLAGS ?=
 
 HLP_DIR := ../../../helpers
@@ -7,23 +7,27 @@ SRC_DIR := ../../private
 
 #In order of importance (foundational -> uses foundation)
 DEPS := sets.o \
-		warn.o \
-		trim.o \
-		file_to_str.o \
-		terminal.o \
-		book.o \
-		firsts.o \
-		follows.o
+	warn.o \
+	trim.o \
+	file_to_str.o \
+	terminal.o \
+	book.o \
+	firsts.o \
+	follows.o
 
 INDV_TESTS := set book_ruleadd book_fromx first follow
 
-.PHONY: all
+.PHONY: all_indv clean help
 .SUFFIXES: 
 
 all_indv: $(INDV_TESTS)
 
 $(INDV_TESTS): $(DEPS)
-	$(CC) -o $@ ../$@.c $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS)
+	$(CC) -o $@ ../$@.c $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS) -I $(HLP_DIR)
+
+#Helpers
+sets.o: $(HLP_DIR)/sets/sets.c
+	$(CC) -c $< $(FLAGS)
 
 warn.o: $(HLP_DIR)/log/warn.c $(HLP_DIR)/log/warn.h
 	$(CC) -c $< $(FLAGS)
@@ -35,7 +39,7 @@ trim.o: $(HLP_DIR)/string/trim.c
 	$(CC) -c $< $(FLAGS)
 
 %.o: $(SRC_DIR)/%.c
-	$(CC) -c $< $(FLAGS)
+	$(CC) -c $< $(FLAGS) -I $(HLP_DIR)
 
 clean:
 	-@rm *.o 2>/dev/null || true

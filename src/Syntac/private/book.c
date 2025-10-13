@@ -2,8 +2,6 @@
 #include <string.h>
 
 #include "syntac_internal.h"
-#include "../../helpers/string/handy.h"
-#include "../../helpers/log/warn.h"
 
 //Allocate an Empty Rule Book
 SyntacBook * SyntacBookAllocate() {

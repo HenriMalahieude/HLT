@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "../private/syntac_internal.h"
-#include "../../helpers/log/warn.h"
 
 #ifndef TEST_NAME
 # define TEST_NAME "UNDEFINED"

@@ -1,8 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "syntac_internal.h"
-#include "../../helpers/log/warn.h"
 
 int *tracker = NULL;
 int firsts_loop_limit = 0;

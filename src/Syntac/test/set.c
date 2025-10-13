@@ -1,6 +1,5 @@
 #define TEST_NAME "Set"
 #include "syn_helper.h"
-#include "../private/sets.h"
 
 bool SetTest() {
 	test_count = 0;

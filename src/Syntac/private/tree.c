@@ -1,6 +1,4 @@
 #include "syntac_private.h"
-#include "../../helpers/log/warn.h"
-#include "../../helpers/string/handy.h"
 
 SyntacTreeNode * SyntacTreeFromTokens(void *stream, Syntac *book) {
 	if (stream == NULL) {
