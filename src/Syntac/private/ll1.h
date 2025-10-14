@@ -1,10 +1,13 @@
 #ifndef __LL1_H__
 #define __LL1_H__
 
-//Parsing Table Entry 2d, nonterm row match, term column match, apply rule_index at loc 
+//Parsing Table Entry 2d
+//One row in a parsing table, 
+//	nonterm is the rule name (on left)
+//	term is all the terminals in which the "rule_idx" is applied to when both nonterm and then this term is seen
 struct ll1_entry {
 	char *nonterm;
-	char *term;
+	char **term;
 	int rule_idx;
 };
 
