@@ -32,8 +32,8 @@ struct stc_rule {
 };
 
 //Parsing Tables
-struct stc_ll1_table_entry; //ll1.h
-struct stc_lr1_table_entry; //lr1.h
+#include "ll1.h"
+struct stc_lr1_table; //lr1.h
 
 //Rule Book
 struct stc_book {
@@ -42,8 +42,8 @@ struct stc_book {
 	int rule_count;
 
 	union {
-		struct stc_ll1_table_entry *ll1_table;
-		struct stc_lr1_table_entry *lr1_table;
+		struct stc_ll1_table *ll1_table;
+		struct stc_lr1_table *lr1_table;
 	};
 };
 
@@ -51,10 +51,6 @@ bool is_terminal(struct stc_book *book, char *element); //terminal.c
 
 void firsts_of_book(struct stc_book *book); //firsts.c
 void follow_of_book(struct stc_book *book); //follows.c
-
-//ll1.c
-struct stc_tree_node * LL1ParseTokens(struct stc_book *book, void *stream);
-struct stc_tree_node * LL1ParseStream(struct stc_book *book, char **stream);
 
 //lr1.c
 struct stc_tree_node * LR1ParseTokens(struct stc_book *book, void *stream);

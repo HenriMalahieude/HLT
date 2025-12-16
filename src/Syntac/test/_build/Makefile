@@ -13,9 +13,10 @@ DEPS := sets.o \
 	terminal.o \
 	book.o \
 	firsts.o \
-	follows.o
+	follows.o \
+	ll1.o
 
-INDV_TESTS := set book_ruleadd book_fromx first follow
+INDV_TESTS := set book_ruleadd book_fromx first follow ll1_table
 
 .PHONY: all_indv clean help
 .SUFFIXES: 

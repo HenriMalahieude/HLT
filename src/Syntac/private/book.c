@@ -25,6 +25,11 @@ void SyntacBookFree(SyntacBook *book) {
 		return;
 	}
 
+	if (book->ll1_table != NULL) {
+		if (book->type == STC_LL1) LL1TableFree(book->ll1_table);
+		else HLT_AWRN(HLT_MJRWRN, "TODO: Parsing Table Freeing");
+	}
+	
 	//Rule is not dynamically allocated, don't free it
 	// see SyntacBookRuleAdd
 	for (int i = 0; i< book->rule_count; i++){
@@ -51,8 +56,8 @@ void SyntacBookFree(SyntacBook *book) {
 	if (book->rules != NULL) free(book->rules); 
 	book->rules = NULL; book->rule_count = 0;
 	free(book);
-
-	HLT_AWRN(HLT_MJRWRN, "TODO: parsing table freeing!");
+	
+	//HLT_AWRN(HLT_MJRWRN, "TODO: lr1 table freeing!");
 }	
 
 void SyntacBookRuleAdd(SyntacBook *book, char *left, char *right) {
@@ -140,10 +145,8 @@ SyntacBook * SyntacBookFromFile(char *file_name){
 	substr[nl] = '\0';
 
 	enum stc_parsing_style type = STC_NON;
-	if 	(strncmp(substr, "TOP", 3) == 0
-			|| strncmp(substr, "LL1", 3) == 0) type = STC_LL1;
-	else if (strncmp(substr, "BOT", 3) == 0
-			|| strncmp(substr, "LR1", 3) == 0) type = STC_LR1;
+	if 	(strncmp(substr, "LL1", 3) == 0) type = STC_LL1;
+	else if (strncmp(substr, "LR1", 3) == 0) type = STC_LR1;
 	else {
 		HLT_WRN(HLT_MJRWRN, "Unimplemented parsing style: '%s'", substr);
 

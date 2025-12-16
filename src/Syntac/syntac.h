@@ -8,14 +8,11 @@ typedef struct stc_book SyntacBook;
 //Types of Grammar Trees
 typedef enum stc_parsing_style {
 	STC_NON = 0,
-	STC_LL1,
-	STC_LR1,
+	STC_LL1,	//WIP
+	STC_LR1,	//Unimplemented
+	STC_EARLEY, 	//Unimplemented
 	STC_PARSE_CNT,
 } SyntacParseType;
-
-//secondary names
-#define STC_TOPDN STC_LL1 //Top-Down (LL1)
-#define STC_BOTUP STC_LR1 //Bottom-Up (LR1)
 
 typedef struct stc_tree_node {
 	SyntacParseType type;

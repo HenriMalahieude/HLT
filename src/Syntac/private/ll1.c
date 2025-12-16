@@ -1,18 +1,63 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "../../Lexic/lexic.h"
 
 #include "syntac_internal.h"
 #include "ll1.h"
 
-void LL1TableEntryAdd(struct stc_ll1_table_entry *tbl, char *nontrm, char *trm, int rule_index) {
-	tbl->entries = (struct ll1_entry *)realloc(tbl->entries, sizeof(struct ll1_entry) * ++(tbl->entry_cnt));
+struct stc_ll1_table * LL1TableAlloc() {
+	struct stc_ll1_table *ll1_table = (struct stc_ll1_table *)malloc(sizeof(struct stc_ll1_table));
+	ll1_table->entries = NULL;
+	ll1_table->entry_cnt = 0;
+
+	return ll1_table;
+}
+
+void LL1TableFree(struct stc_ll1_table *tbl) {
+	for (int i = 0; i < tbl->entry_cnt; i++) {
+		struct stc_ll1_entry *ent = tbl->entries + i;
+		free(ent->nonterm);
+		SetFree(ent->term);
+		ent->rule_idx = 0;
+	}
+
+	free(tbl->entries);
+}
+
+//New Entry
+void LL1TableEntryAdd(struct stc_ll1_table *tbl, char *nontrm, char *trm, int rule_index) {
+	tbl->entries = (struct stc_ll1_entry *)realloc(tbl->entries, sizeof(struct stc_ll1_entry) * ++(tbl->entry_cnt));
 	if (tbl->entries == NULL) HLT_ERR("Realloc failed to allocate?");
+	tbl->entry_cnt++;
 	
-	struct ll1_entry *entry = tbl->entries + (tbl->entry_cnt-1);
+	struct stc_ll1_entry *entry = tbl->entries + (tbl->entry_cnt-1);
+	
 	entry->nonterm = (char *)calloc(strlen(nontrm)+1, sizeof(char));
+	if (entry->nonterm == NULL) HLT_ERR("Calloc failed to allocate?");
 	strcpy(entry->nonterm, nontrm);
-	entry->term = (char *)calloc(strlen(trm)+1, sizeof(char));
-	strcpy(entry->term, trm);
+	
+	entry->term = SetCreate(1, trm);
+	
 	entry->rule_idx = rule_index;
+}
+
+//Update Entry
+void LL1TableEntryInsert(struct stc_ll1_table *tbl, char *nontrm, char *trm, int rule_index) {
+	struct stc_ll1_entry *match = NULL;	
+	for (int i = 0; i < tbl->entry_cnt; i++) {
+		struct stc_ll1_entry *entry = tbl->entries + i;
+		if (entry->rule_idx == rule_index && strcmp(entry->nonterm, nontrm) == 0) {
+			match = entry;
+			break;
+		}
+	}
+
+	if (!match) LL1TableEntryAdd(tbl, nontrm, trm, rule_index);
+	else {
+		if (SetContains(match->term, trm)) HLT_WRN(HLT_STDWRN, "Terminal (%s) already exists within rule (%s:%d)?", trm, nontrm, rule_index);
+		SetAdd(&match->term, trm);
+	}
 }
 
 void LL1TableCalculate(SyntacBook *book) {
@@ -43,10 +88,7 @@ void LL1TableCalculate(SyntacBook *book) {
 	}
 
 	//Generate entries
-	//1 init the table
-	book->ll1_table = (struct stc_ll1_table_entry *)malloc(sizeof(struct stc_ll1_table_entry));
-	book->ll1_table->entries = NULL;
-	book->ll1_table->entry_cnt = 0;
+	book->ll1_table = LL1TableAlloc();
 	
 	//For each rule
 	for (int i = 0; i < book->rule_count; i++) {
@@ -57,13 +99,25 @@ void LL1TableCalculate(SyntacBook *book) {
 		char **set_to_work = ((epsi_rule) ? rule->first_set : rule->follow_set);
 		for (int j = 0; set_to_work[j] != NULL; j++) {
 			char *elm = set_to_work[j]; //NOTE: will contain ENDMRKR in follow set, no need to worry
-			LL1TableEntryAdd(book->ll1_table, rule->name, elm, i);
+			LL1TableEntryInsert(book->ll1_table, rule->name, elm, i);
 		}
 	}
 
-	//TODO: Validate the table
+	//Validate the table, make sure no rules overlapping
+	for (int i = 0; i < book->ll1_table->entry_cnt; i++) {
+		struct stc_ll1_entry *ent1 = book->ll1_table->entries + i;
+		for (int j = i+1; j < book->ll1_table->entry_cnt; j++) {
+			struct stc_ll1_entry *ent2 = book->ll1_table->entries + j;
+			if (ent1->rule_idx != ent2->rule_idx 
+					&& strcmp(ent1->nonterm, ent2->nonterm) == 0 
+					&& SetOverlaps(ent1->term, ent2->term)) {
+				HLT_ERR("Rule %d and %d of nonterminal '%s' have ambiguity!", ent1->rule_idx, ent2->rule_idx, ent1->nonterm);
+			}
+		}
+	}
 }
 
+/*
 //The only dynamic mem part is the node itself
 struct stc_tree_node * InitTreeNode(enum stc_parsing_style typ, char *rule) {
 	struct stc_tree_node *node = (struct stc_tree_node *)malloc(sizeof(struct stc_tree_node));
@@ -95,7 +149,7 @@ int FindStartingRule(struct stc_book *book) {
 
 int LL1RuleFind(struct stc_book *book, char *stack_top, char *look_ahead) {
 	for (int i = 0; i < book->ll1_table->entry_cnt; i++) {
-		struct ll1_entry *ent = book->ll1_table->entries + i;
+		struct stc_ll1_entry *ent = book->ll1_table->entries + i;
 		
 		if (strcmp(ent->nonterm, stack_top) == 0 && strcmp(ent->term, look_ahead) == 0) {
 			return ent->rule_idx;
@@ -122,7 +176,7 @@ struct stc_tree_node * LL1RescursiveParse(struct lxc_token *stream, struct stc_b
 	struct stc_rule *rule_to_apply = book->rules[to_apply];
 	if (rule_to_apply == NULL) HLT_AERR("Located rule was null?");
 	
-	struct stc_tree_node *cur = InitTreeNode(STC_LL1, stk_nme);
+	//struct stc_tree_node *cur = InitTreeNode(STC_LL1, stk_nme);
 
 	int cnt = SetCount(rule_to_apply->elements); //kind of an abuse of the func, but whatever
 	for (int i = (cnt-1); i >= 0; i--) {
@@ -163,4 +217,4 @@ struct stc_tree_node * TopParseTokens(struct lxc_token *stream, SyntacBook *book
 		int ridx = LL1RuleFind(book, stack[stk_ptr], ENDMRKR);
 		if (ridx < 0) HLT_ERR("Finished Stream, Parsing on Last elm, but no EOF ($) rule for '%s'", stack[stk_ptr]);
 	}
-}
+} */
