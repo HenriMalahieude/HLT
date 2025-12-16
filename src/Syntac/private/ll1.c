@@ -29,7 +29,6 @@ void LL1TableFree(struct stc_ll1_table *tbl) {
 void LL1TableEntryAdd(struct stc_ll1_table *tbl, char *nontrm, char *trm, int rule_index) {
 	tbl->entries = (struct stc_ll1_entry *)realloc(tbl->entries, sizeof(struct stc_ll1_entry) * ++(tbl->entry_cnt));
 	if (tbl->entries == NULL) HLT_ERR("Realloc failed to allocate?");
-	tbl->entry_cnt++;
 	
 	struct stc_ll1_entry *entry = tbl->entries + (tbl->entry_cnt-1);
 	
@@ -67,16 +66,18 @@ void LL1TableCalculate(SyntacBook *book) {
 	//Validate
 	for (int i = 0; i < book->rule_count; i++) {
 		//Rule 1: No Left Recursion (A -> A : B)
-		if (strcmp(book->rules[i].name, book->rules[i].elements[0]) == 0) 
+		if (book->rules[i].elements[0] != NULL && strcmp(book->rules[i].name, book->rules[i].elements[0]) == 0) 
 			HLT_ERR("LL1 Grammar has left recursion on %s (#%d). Cannot calculate table.", book->rules[i].name, i);
 
+		/*
 		for (int j = i+1; j < book->rule_count; j++) {
-			//Rule 2: Unambiguous (first sets are unique)
-			if (SetOverlaps(book->rules[i].first_set, book->rules[j].first_set))
+			//Rule 2: Unambiguous (first sets are unique) [Calculated Below]
+			if (SetOverlaps(book->rules[i].first_set, book->rules[j].first_set) && strcmp(book->rules[i].name, book->rules[j].name) == 0)
 				HLT_ERR("LL1 Grammar is ambiguous. Rule %d's (%s) firsts intersect with rule %d's (%s) firsts. Cannot calculate table.", 
 						i, book->rules[i].name, j, book->rules[j].name);
 
 			//Rule 3: Disjoint first and follow sets (unique character seen to rule to apply mapping)
+			
 			if (SetOverlaps(book->rules[i].first_set, book->rules[j].follow_set)) 
 				HLT_ERR("LL1 Grammar has intersection between %s's (#%d) firsts, and %s's (#%d) follows. Cannot calculate table.",
 						book->rules[i].name, i, book->rules[j].name, j);
@@ -84,7 +85,7 @@ void LL1TableCalculate(SyntacBook *book) {
 			if (SetOverlaps(book->rules[i].follow_set, book->rules[j].first_set))
 				HLT_ERR("LL1 Grammar has intersection between %s's (#%d) follows, and %s's (#%d) firsts. Cannot calculate table.", 
 						book->rules[i].name, i, book->rules[j].name, j);
-		}
+		} // */
 	}
 
 	//Generate entries
@@ -93,17 +94,24 @@ void LL1TableCalculate(SyntacBook *book) {
 	//For each rule
 	for (int i = 0; i < book->rule_count; i++) {
 		struct stc_rule *rule = book->rules + i; //for each element in the first set, create an entry
-		bool epsi_rule = (strcmp(rule->elements[0], EPSILON) == 0);
+		bool epsi_rule = SetContains(rule->first_set, EPSILON);
 
 		//If it's epsilon, apply to all follows, else to all firsts
-		char **set_to_work = ((epsi_rule) ? rule->first_set : rule->follow_set);
+		char **set_to_work = (!(epsi_rule) ? rule->first_set : rule->follow_set);
 		for (int j = 0; set_to_work[j] != NULL; j++) {
 			char *elm = set_to_work[j]; //NOTE: will contain ENDMRKR in follow set, no need to worry
 			LL1TableEntryInsert(book->ll1_table, rule->name, elm, i);
+			HLT_WRN(HLT_DEBUG, "%s & %s apply %d (epsi? %d)", rule->name, elm, i, (int)epsi_rule);
+		}
+
+		//printf("%d, %d\n", (int)epsi_rule, SetContains(rule->follow_set, ENDMRKR));
+		if (epsi_rule) { printf("%s ",rule->name); SetPrint(rule->follow_set); }
+		if (epsi_rule && SetContains(rule->follow_set, ENDMRKR)) {
+			LL1TableEntryInsert(book->ll1_table, rule->name, ENDMRKR, i);
 		}
 	}
 
-	//Validate the table, make sure no rules overlapping
+	//Validate the table, make sure no rules overlap
 	for (int i = 0; i < book->ll1_table->entry_cnt; i++) {
 		struct stc_ll1_entry *ent1 = book->ll1_table->entries + i;
 		for (int j = i+1; j < book->ll1_table->entry_cnt; j++) {
@@ -111,7 +119,13 @@ void LL1TableCalculate(SyntacBook *book) {
 			if (ent1->rule_idx != ent2->rule_idx 
 					&& strcmp(ent1->nonterm, ent2->nonterm) == 0 
 					&& SetOverlaps(ent1->term, ent2->term)) {
-				HLT_ERR("Rule %d and %d of nonterminal '%s' have ambiguity!", ent1->rule_idx, ent2->rule_idx, ent1->nonterm);
+				printf("Rule %d:\n", ent1->rule_idx);
+				SetPrint(ent1->term);
+
+				printf("Rule %d:\n", ent2->rule_idx);
+				SetPrint(ent2->term);
+
+				HLT_ERR("Rule %d (%s) and %d (%s) have ambiguity (both rules can be applied when nonterm and specific term on stack)", ent1->rule_idx, ent1->nonterm, ent2->rule_idx, ent2->nonterm);
 			}
 		}
 	}

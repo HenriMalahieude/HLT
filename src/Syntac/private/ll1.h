@@ -8,9 +8,9 @@
 //	nonterm is the rule name (on left)
 //	term is all the terminals in which the "rule_idx" is applied to when both nonterm and then this term is seen
 struct stc_ll1_entry {
+	int rule_idx;
 	char *nonterm;
 	char **term;  //set
-	int rule_idx;
 };
 
 //within stc_book
