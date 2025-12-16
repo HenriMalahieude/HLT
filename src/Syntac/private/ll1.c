@@ -99,15 +99,9 @@ void LL1TableCalculate(SyntacBook *book) {
 		//If it's epsilon, apply to all follows, else to all firsts
 		char **set_to_work = (!(epsi_rule) ? rule->first_set : rule->follow_set);
 		for (int j = 0; set_to_work[j] != NULL; j++) {
-			char *elm = set_to_work[j]; //NOTE: will contain ENDMRKR in follow set, no need to worry
+			char *elm = set_to_work[j]; //NOTE: will contain ENDMRKR in follow set, we want this
 			LL1TableEntryInsert(book->ll1_table, rule->name, elm, i);
 			HLT_WRN(HLT_DEBUG, "%s & %s apply %d (epsi? %d)", rule->name, elm, i, (int)epsi_rule);
-		}
-
-		//printf("%d, %d\n", (int)epsi_rule, SetContains(rule->follow_set, ENDMRKR));
-		if (epsi_rule) { printf("%s ",rule->name); SetPrint(rule->follow_set); }
-		if (epsi_rule && SetContains(rule->follow_set, ENDMRKR)) {
-			LL1TableEntryInsert(book->ll1_table, rule->name, ENDMRKR, i);
 		}
 	}
 
