@@ -1,4 +1,4 @@
-//TODO: Add follow loop tracking
+//TODO: Add follow loop/recursion tracking
 #include <string.h>
 #include <stdlib.h>
 
@@ -22,7 +22,7 @@ char **get_firsts_of(struct stc_book *book, char *rule_name) {
 	return first;
 }
 
-void follow_of_rule(struct stc_book *book, int rule_index) {
+void follow_of_rule(struct stc_book *book, int rule_index, int start_index) {
 	if (book == NULL) HLT_AERR("Book supplied null?");
 	if (rule_index < 0 || rule_index >= book->rule_count) HLT_AERR("Rule index out-of-bounds?");
 
@@ -34,7 +34,8 @@ void follow_of_rule(struct stc_book *book, int rule_index) {
 		if (i == rule_index) continue;
 		if (strcmp(rule->name, book->rules[i].name) == 0) {
 			if (book->rules[i].follow_set != NULL) {
-				//makes a copy...., debating if I should have a normal pointer
+				//makes a copy...., debating if I should just have a pointer
+				//making copies is easier for simpler freeing, so whatever
 				rule->follow_set = SetUnion(NULL, book->rules[i].follow_set);
 				return;
 			}
@@ -60,7 +61,7 @@ void follow_of_rule(struct stc_book *book, int rule_index) {
 			if (next == NULL) { //Rule 3: Follow(book->rules[i]) into Follow(rule)
 				//attempting to calculate this rule's own follow, currently doing so, skip
 				if (strcmp(book->rules[i].name, rule->name) == 0) continue; 
-				if (book->rules[i].follow_set == NULL) follow_of_rule(book, i);
+				if (book->rules[i].follow_set == NULL) follow_of_rule(book, i, start_index);
 
 				char **lcl = SetUnion(follow, book->rules[i].follow_set);
 				if (follow != NULL) SetFree(follow);
@@ -89,7 +90,7 @@ void follow_of_rule(struct stc_book *book, int rule_index) {
 						
 						if (!move_on && book->rules[i].elements[k] == NULL) { //means that we do Rule 1
 							if (strcmp(book->rules[i].name, rule->name) == 0) break;
-							if (book->rules[i].follow_set == NULL) follow_of_rule(book, i);
+							if (book->rules[i].follow_set == NULL) follow_of_rule(book, i, start_index);
 							
 							lcl = SetUnion(follow, book->rules[i].follow_set);
 							if (follow != NULL) SetFree(follow);
@@ -102,16 +103,21 @@ void follow_of_rule(struct stc_book *book, int rule_index) {
 			}
 		}
 	}
-
-	if (follow == NULL) rule->follow_set = SetCreate(1, ENDMRKR); //Rule 1: Starting symbol(s) has end-marker only
-	else rule->follow_set = follow;
+	 
+	//Rule 1: Starting symbol(s) has end-marker only
+	if (follow == NULL) rule->follow_set = SetCreate(1, ENDMRKR);
+	else {
+		rule->follow_set = follow;
+		if (rule_index == start_index) SetAdd(&rule->follow_set, ENDMRKR);
+	}
 }
 
 void follow_of_book(struct stc_book *book) {
 	if (book == NULL) HLT_AERR("Book supplied null?");
 
+	int starting_rule = find_starting_rule(book); //starting rule also has ENDMRKR ($) as a follow
 	for (int i = 0; i < book->rule_count; i++) {
 		if (book->rules[i].first_set == NULL) HLT_AERR("First set not generated before follow set?");
-		if (book->rules[i].follow_set == NULL) follow_of_rule(book, i);
+		if (book->rules[i].follow_set == NULL) follow_of_rule(book, i, starting_rule);
 	}
 }

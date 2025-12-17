@@ -48,6 +48,7 @@ struct stc_book {
 };
 
 bool is_terminal(struct stc_book *book, char *element); //terminal.c
+int find_starting_rule(struct stc_book *book); //starting_rule.c
 
 void firsts_of_book(struct stc_book *book); //firsts.c
 void follow_of_book(struct stc_book *book); //follows.c

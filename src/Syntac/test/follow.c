@@ -22,11 +22,11 @@ bool FollowTest() {
 	follow_of_book(book1);
 
 	char **set_start = SetCreate(1, ENDMRKR);
-	valid += TEST(SetEquality(set_start, book1->rules[0].follow_set), 1);
-	valid += TEST(SetEquality(set_start, book1->rules[1].follow_set), 1);
+	valid += TEST_SET(book1->rules[0].follow_set, set_start);
+	valid += TEST_SET(book1->rules[1].follow_set, set_start);
 	
 	char **set_c_t1 = SetCreate(1, "B");
-	valid += TEST(SetEquality(set_start, book1->rules[2].follow_set), 1);
+	valid += TEST_SET(book1->rules[2].follow_set, set_c_t1);
 	SetFree(set_c_t1); set_c_t1 = NULL;
 
 	SyntacBookFree(book1); book1 = NULL;
@@ -49,9 +49,9 @@ bool FollowTest() {
 	firsts_of_book(book1);
 	follow_of_book(book1);
 
-	char **rec_a_b1 = SetCreate(1, ENDMRKR);
-	valid += TEST_SET(book1->rules[0].follow_set, rec_a_b1);
-	SetFree(rec_a_b1); rec_a_b1 = NULL;
+	//char **rec_a_b1 = SetCreate(1, ENDMRKR);
+	valid += TEST_SET(book1->rules[0].follow_set, set_start);
+	//SetFree(rec_a_b1); rec_a_b1 = NULL;
 
 	char **rec_b_b1 = SetCreate(4, "c", "d", "a", ENDMRKR);
 	valid += TEST_SET(book1->rules[1].follow_set, rec_b_b1);
@@ -93,23 +93,19 @@ bool FollowTest() {
 	firsts_of_book(book2);
 	follow_of_book(book2);
 
-	char **set_e_t2 = SetCreate(1, ")");
+	char **set_e_t2 = SetCreate(2, ")", ENDMRKR);
 	valid += TEST_SET(book2->rules[0].follow_set, set_e_t2);
+	valid += TEST_SET(book2->rules[1].follow_set, set_e_t2);
+	valid += TEST_SET(book2->rules[2].follow_set, set_e_t2);
 	SetFree(set_e_t2); set_e_t2 = NULL;
 
-	char **set_ep_t2 = SetCreate(1, ")");
-	valid += TEST_SET(book2->rules[1].follow_set, set_ep_t2);
-	valid += TEST_SET(book2->rules[2].follow_set, set_ep_t2);
-	SetFree(set_ep_t2); set_ep_t2 = NULL;
-
-	char **set_t_t2 = SetCreate(2, "+", ")");
+	char **set_t_t2 = SetCreate(3, "+", ")", ENDMRKR);
 	valid += TEST_SET(book2->rules[3].follow_set, set_t_t2);
-	
 	valid += TEST_SET(book2->rules[4].follow_set, set_t_t2);
 	valid += TEST_SET(book2->rules[5].follow_set, set_t_t2);
 	SetFree(set_t_t2); set_t_t2 = NULL;
 
-	char **set_f_t2 = SetCreate(3, "*", "+", ")");
+	char **set_f_t2 = SetCreate(4, "*", "+", ")", ENDMRKR);
 	valid += TEST_SET(book2->rules[6].follow_set, set_f_t2);
 	valid += TEST_SET(book2->rules[7].follow_set, set_f_t2);
 	SetFree(set_f_t2); set_f_t2 = NULL;
@@ -193,6 +189,7 @@ bool FollowTest() {
 #ifndef ALL_TESTS
 int test_count = 0;
 int main(void) {
+	warn_level = HLT_DEBUG;
 	return !FollowTest();
 }
 #endif

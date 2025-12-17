@@ -138,22 +138,6 @@ struct stc_tree_node * InitTreeNode(enum stc_parsing_style typ, char *rule) {
 	node->col_start = node->col_end = 0;
 }
 
-int FindStartingRule(struct stc_book *book) {
-	char *id[2] = {ENDMRKR, NULL}; //no need to use heap here
-	//char **id = SetCreate(1, ENDMRKR); //starting rule should have no following tokens
-	
-	int start_rule = -1;
-	for (int i = 0; i < book->rule_count; i++) {
-		if (SetEquality(id, book->rules[i].follow_set)) { //identified the starting rule
-			if (start_rule != -1) HLT_ERR("LL1 Grammar has multiple starting/top-level rules? (Follow Set = { $ })");
-			start_rule = i;
-		}
-	}
-	
-	if (start_rule == -1) HLT_ERR("LL1 Grammar could not identify a starting symbol? (No Rule w/ Follow Set = { $ })");
-	//SetFree(id); id = NULL;
-	return start_rule;
-}
 
 int LL1RuleFind(struct stc_book *book, char *stack_top, char *look_ahead) {
 	for (int i = 0; i < book->ll1_table->entry_cnt; i++) {

@@ -14,7 +14,8 @@ DEPS := sets.o \
 	book.o \
 	firsts.o \
 	follows.o \
-	ll1.o
+	ll1.o \
+	starting_rule.o
 
 INDV_TESTS := set book_ruleadd book_fromx first follow ll1_table
 
