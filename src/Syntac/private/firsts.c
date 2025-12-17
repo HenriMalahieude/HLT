@@ -100,7 +100,7 @@ void firsts_of_rule(struct stc_book *book, int rule_index) {
 void firsts_of_book(struct stc_book *book) { //local use, all asserts/ifs should error
 	if (book == NULL) HLT_ERR("Book supplied is null?");
 
-	HLT_WRN(HLT_DEBUG, "Calculating firsts of this book!");
+	HLT_WRN(HLT_VERBSE, "Calculating first set for this book!");
 
 	if (tracker != NULL) HLT_AERR("Failed to unallocate the tracker array properly?");
 	tracker = calloc(book->rule_count, sizeof(int)); //calloc sets all to zero

@@ -42,6 +42,7 @@ void follow_of_rule(struct stc_book *book, int rule_index, int start_index) {
 		}
 	}
 
+
 	//scan each rule
 	char **follow = NULL;
 	for (int i = 0; i < book->rule_count; i++) {
@@ -53,11 +54,11 @@ void follow_of_rule(struct stc_book *book, int rule_index, int start_index) {
 			//		and token/rule != rule->name
 
 			char *elm = book->rules[i].elements[j];
-			if (elm != NULL && strcmp(rule->name, elm) != 0) continue; //Element not this rule
+			if (elm != NULL && strcmp(rule->name, elm) != 0) continue; //Element not this rule, skip
 
 			char *next = book->rules[i].elements[j+1];
 			if (next != NULL && strcmp(rule->name, next) == 0) continue; //Follow up elm is this rule, skip forward
-
+			
 			if (next == NULL) { //Rule 3: Follow(book->rules[i]) into Follow(rule)
 				//attempting to calculate this rule's own follow, currently doing so, skip
 				if (strcmp(book->rules[i].name, rule->name) == 0) continue; 
@@ -105,8 +106,9 @@ void follow_of_rule(struct stc_book *book, int rule_index, int start_index) {
 	}
 	 
 	//Rule 1: Starting symbol(s) has end-marker only
-	if (follow == NULL) rule->follow_set = SetCreate(1, ENDMRKR);
-	else {
+	if (follow == NULL) {
+		rule->follow_set = SetCreate(1, ENDMRKR); 
+	} else {
 		rule->follow_set = follow;
 		if (rule_index == start_index) SetAdd(&rule->follow_set, ENDMRKR);
 	}
@@ -114,6 +116,7 @@ void follow_of_rule(struct stc_book *book, int rule_index, int start_index) {
 
 void follow_of_book(struct stc_book *book) {
 	if (book == NULL) HLT_AERR("Book supplied null?");
+	HLT_WRN(HLT_VERBSE, "Calculating the follow set for this book!");
 
 	int starting_rule = find_starting_rule(book); //starting rule also has ENDMRKR ($) as a follow
 	for (int i = 0; i < book->rule_count; i++) {

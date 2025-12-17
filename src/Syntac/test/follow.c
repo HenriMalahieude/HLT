@@ -11,7 +11,7 @@ bool FollowTest() {
 	//Step 1: Trivial
 	SyntacBook *book1 = SyntacBookAllocate();
 	SyntacBookRuleAdd(book1, "A", "B");
-	SyntacBookRuleAdd(book1, "A", "CB");
+	SyntacBookRuleAdd(book1, "A", "C:B");
 	SyntacBookRuleAdd(book1, "C", "");
 	if (book1->rule_count != 3) {
 		print_test("SyntacBookRuleAdd failed to add 3 rules as requested?");
@@ -189,7 +189,7 @@ bool FollowTest() {
 #ifndef ALL_TESTS
 int test_count = 0;
 int main(void) {
-	warn_level = HLT_DEBUG;
+	//warn_level = HLT_DEBUG;
 	return !FollowTest();
 }
 #endif

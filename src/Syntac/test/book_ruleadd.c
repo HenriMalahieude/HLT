@@ -19,7 +19,8 @@ bool RuleAddTest() {
 	//Test edge case (NULL/epsilon rules)
 	SyntacBookRuleAdd(book, "NULL", "");
 	if (!TEST_STRING(book->rules[0].name, "NULL")) return false;
-	if (!TEST_NULL(book->rules[0].elements[0])) return false;
+	if (!TEST_STRING(book->rules[0].elements[0], EPSILON)) return false;
+	if (!TEST_NULL(book->rules[0].elements[1])) return false;
 	valid += 2;
 	warn_level = tmp; //reset
 

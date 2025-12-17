@@ -81,7 +81,7 @@ void SyntacBookRuleAdd(SyntacBook *book, char *left, char *right) {
 	int elm_cnt = 1;
 	for (size_t i = 0; i < strlen(right); i++) if (right[i] == RIGHT_DELIM) elm_cnt++;
 
-	//Initialize the rule + name
+	//Initialize the rule + name on stack, will be copied onto heap below
 	struct stc_rule rule = {0}; 
 	rule.name = NULL;
 	rule.elements = NULL;
@@ -116,7 +116,13 @@ void SyntacBookRuleAdd(SyntacBook *book, char *left, char *right) {
 		nconsumeIdx = i+1; //skip delim
 	}
 
-	if (elm_i < elm_cnt) HLT_WRN(HLT_VERBSE, "Rulebook attempted to add '%s' (%d prev) expected %d elements, got %d?", left, book->rule_count, elm_cnt, elm_i);
+	if (elm_i == 0) {
+		rule.elements[0] = (char*)calloc(sizeof(EPSILON), sizeof(char));
+		strcpy(rule.elements[0], EPSILON);
+		HLT_WRN(HLT_VERBSE, "Rule #%d detected as epsilon!", book->rule_count+1);
+	} else if (elm_i < elm_cnt) {
+		HLT_WRN(HLT_VERBSE, "Rule #%d (%s) expected %d elements, got %d?", book->rule_count+1, left, elm_cnt, elm_i);
+	}
 
 	//Place into the book, unless you have a better idea, we will be reallocing 1 by 1
 	book->rules = (struct stc_rule *)realloc(book->rules, sizeof(struct stc_rule) * ++(book->rule_count)); 
