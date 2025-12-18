@@ -36,8 +36,10 @@ void firsts_of_rule(struct stc_book *book, int rule_index) {
 		//Check each other (matching name/left) rule and get their first sets
 		char **new_first = NULL;
 		for (int j = 0; j < book->rule_count; j++) {
-			if (strcmp(book->rules[j].name, elm) != 0) continue;
-			if (rule_index == j) continue; //loops into same rule are ignored (a -> a b a c, only b & c considered unless there is another 'a' rule)
+			if (strcmp(book->rules[j].name, elm) != 0) continue; //not the right rule
+			
+			//loops into same rule are ignored (a -> a b a c, only b & c considered unless there is another 'a' rule)
+			if (rule_index == j) continue; 
 			
 			firsts_of_rule(book, j);
 			if (book->rules[j].first_set == NULL) continue; //failed to actually generate a first set, so we can't acquire it ourselves
@@ -119,17 +121,13 @@ void firsts_of_book(struct stc_book *book) { //local use, all asserts/ifs should
 		}
 	}
 	
-	//Then we check that we got everything to have a firsts set
-	bool failed = false;
+	//Then we check that we got everything to have a firsts set, otherwise apply empty set
 	for (int i = 0; i < book->rule_count; i++) {
 		if (book->rules[i].first_set == NULL) {
-			HLT_WRN(HLT_MJRWRN, "Couldn't generate the first set of rule '%s'?", book->rules[i].name);
-			failed = true;
+			HLT_WRN(HLT_STDWRN, "Rule '%s' firsts is nothing (empty set)", book->rules[i].name);
+			book->rules[i].first_set = SetCreate(0); //empty set
 		}
 	}
-	
-	//TODO: Some way to control this failed signal, and firsts_loop_limit
-	if (failed) HLT_ERR("Some first sets were not generated, not told to ignore.");
 
 	HLT_WRN(HLT_VERBSE, "Firsts took %d loops to calculate", firsts_loop_limit);
 	firsts_loop_limit = 0;

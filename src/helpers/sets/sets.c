@@ -4,7 +4,7 @@
 #include "sets.h"
 
 char ** SetCreate(int count, ...) {
-	if (count <= 0) return NULL;
+	if (count <= 0) return (char **)calloc(1, sizeof(char *)); //empty set
 
 	va_list elms;
 	va_start(elms, count);
@@ -17,6 +17,18 @@ char ** SetCreate(int count, ...) {
 
 	va_end(elms);
 	return set;
+}
+
+void SetFree(char **set) {
+	if (set == NULL) return;
+
+	int count = SetCount(set);
+	for (int i = 0; i < count; i++) {
+		free(set[i]);
+		set[i] = NULL;
+	}
+
+	free(set);
 }
 
 bool SetContains(char **set, char *item) {
@@ -36,7 +48,7 @@ bool SetEquality(char **set1, char **set2) {
 	if (set1 == NULL || set2 == NULL) return false;
 
 	int cnt1 = SetCount(set1);
-	if (cnt1 <= 0) return false;
+	if (cnt1 < 0) return false;
 
 	if (cnt1 != SetCount(set2)) return false;
 
@@ -140,7 +152,7 @@ char ** SetUnion(char **set1, char **set2) {
 int SetCount(char **set) {
 	if (set == NULL) return 0;
 
-	int cnt;
+	int cnt = 0;
 	for (cnt = 0; set[cnt] != NULL; cnt++);
 
 	return cnt;
@@ -151,16 +163,4 @@ void SetPrint(char **set) {
 
 	for (int i = 0; set[i] != NULL; i++) printf("'%s'\t", set[i]);
 	printf("\n");
-}
-
-void SetFree(char **set) {
-	if (set == NULL) return;
-
-	int count = SetCount(set);
-	for (int i = 0; i < count; i++) {
-		free(set[i]);
-		set[i] = NULL;
-	}
-
-	free(set);
 }

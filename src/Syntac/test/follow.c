@@ -37,34 +37,57 @@ bool FollowTest() {
 	
 	print_test("Passed Trivial Case\n");
 
+	//Step 1.1: Geeks For Geeks Trivial
+	book1 = SyntacBookAllocate();
+	SyntacBookRuleAdd(book1, "S", "A:a");
+	SyntacBookRuleAdd(book1, "S", "A:c");
+	SyntacBookRuleAdd(book1, "A", "b");
+	if (book1->rule_count != 3) {
+		print_test("SyntacBookRuleAdd failed to add 3 rules as requested?");
+		return false;
+	}
+
+	firsts_of_book(book1);
+	follow_of_book(book1);
+
+	valid += TEST_SET(book1->rules[0].follow_set, set_start);
+	valid += TEST_SET(book1->rules[1].follow_set, set_start);
+
+	char **set_a_t11 = SetCreate(2, "a", "c");
+	valid += TEST_SET(book1->rules[2].follow_set, set_a_t11);
+	SetFree(set_a_t11); set_a_t11 = NULL;
+
+	SyntacBookFree(book1); book1 = NULL;
+	if (valid != test_count) {
+		print_test("Failed 2nd Trivial Case");
+		return false;
+	}
+
+	print_test("Passed 2nd Trivial Case");
+
 	//Step 1.5: Recursion
 	book1 = SyntacBookAllocate();
-	SyntacBookRuleAdd(book1, "A", "B:A:A");
+	SyntacBookRuleAdd(book1, "A", "A:B");
+	SyntacBookRuleAdd(book1, "C", "B:C:B");
 	SyntacBookRuleAdd(book1, "B", "c");
 	SyntacBookRuleAdd(book1, "B", "");
-	SyntacBookRuleAdd(book1, "C", "B:C:d");
-	SyntacBookRuleAdd(book1, "D", "B:D:D:D:D:D:D:a");
-	valid += TEST(book1->rule_count, 5);
+	if (book1->rule_count != 4) {
+		print_test("SyntacBookRuleAdd did not add 4 rules as requested?");
+		return false;
+	}
 	
 	firsts_of_book(book1);
 	follow_of_book(book1);
 
-	//char **rec_a_b1 = SetCreate(1, ENDMRKR);
-	valid += TEST_SET(book1->rules[0].follow_set, set_start);
-	//SetFree(rec_a_b1); rec_a_b1 = NULL;
-
-	char **rec_b_b1 = SetCreate(4, "c", "d", "a", ENDMRKR);
-	valid += TEST_SET(book1->rules[1].follow_set, rec_b_b1);
+	char **rec_b_b1 = SetCreate(2, "c", ENDMRKR);
+	valid += TEST_SET(book1->rules[0].follow_set, rec_b_b1);
 	valid += TEST_SET(book1->rules[2].follow_set, rec_b_b1);
+	valid += TEST_SET(book1->rules[3].follow_set, rec_b_b1);
 	SetFree(rec_b_b1); rec_b_b1 = NULL;
 
-	char **rec_c_b1 = SetCreate(1, "d");
-	valid += TEST_SET(book1->rules[3].follow_set, rec_c_b1);
-	SetFree(rec_c_b1); rec_c_b1 = NULL;
-
-	char **rec_d_b1 = SetCreate(1, "a");
-	valid += TEST_SET(book1->rules[4].follow_set, rec_d_b1);
-	SetFree(rec_d_b1); rec_d_b1 = NULL;
+	rec_b_b1 = SetCreate(1, "c");
+	valid += TEST_SET(book1->rules[1].follow_set, rec_b_b1);
+	SetFree(rec_b_b1); rec_b_b1 = NULL;
 
 	SyntacBookFree(book1); book1 = NULL;
 	if (valid != test_count) {
@@ -174,7 +197,7 @@ bool FollowTest() {
 	valid += TEST_SET(book4->rules[6].follow_set, set_b1_b4);
 	SetFree(set_b1_b4); set_b1_b4 = NULL;
 
-	char **set_c1_b4 = SetCreate(4, "g", ENDMRKR, "b", "h");
+	char **set_c1_b4 = SetCreate(4, "g", "b", "h", ENDMRKR);
 	valid += TEST_SET(book4->rules[7].follow_set, set_c1_b4);
 	valid += TEST_SET(book4->rules[8].follow_set, set_c1_b4);
 	SetFree(set_c1_b4); set_c1_b4 = NULL;

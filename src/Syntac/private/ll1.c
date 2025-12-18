@@ -65,27 +65,13 @@ void LL1TableCalculate(SyntacBook *book) {
 
 	//Validate
 	for (int i = 0; i < book->rule_count; i++) {
+		struct stc_rule *rule = book->rules + i;
+
 		//Rule 1: No Left Recursion (A -> A : B)
-		if (book->rules[i].elements[0] != NULL && strcmp(book->rules[i].name, book->rules[i].elements[0]) == 0) 
-			HLT_ERR("LL1 Grammar has left recursion on %s (#%d). Cannot calculate table.", book->rules[i].name, i);
-
-		/*
-		for (int j = i+1; j < book->rule_count; j++) {
-			//Rule 2: Unambiguous (first sets are unique) [Calculated Below]
-			if (SetOverlaps(book->rules[i].first_set, book->rules[j].first_set) && strcmp(book->rules[i].name, book->rules[j].name) == 0)
-				HLT_ERR("LL1 Grammar is ambiguous. Rule %d's (%s) firsts intersect with rule %d's (%s) firsts. Cannot calculate table.", 
-						i, book->rules[i].name, j, book->rules[j].name);
-
-			//Rule 3: Disjoint first and follow sets (unique character seen to rule to apply mapping)
-			
-			if (SetOverlaps(book->rules[i].first_set, book->rules[j].follow_set)) 
-				HLT_ERR("LL1 Grammar has intersection between %s's (#%d) firsts, and %s's (#%d) follows. Cannot calculate table.",
-						book->rules[i].name, i, book->rules[j].name, j);
-
-			if (SetOverlaps(book->rules[i].follow_set, book->rules[j].first_set))
-				HLT_ERR("LL1 Grammar has intersection between %s's (#%d) follows, and %s's (#%d) firsts. Cannot calculate table.", 
-						book->rules[i].name, i, book->rules[j].name, j);
-		} // */
+		for (int j = 0; rule->elements[j] != NULL; j++) {
+			if (strcmp(rule->elements[j], rule->name) == 0 && rule->elements[j+1] != NULL)
+				HLT_ERR("LL1 Grammar has left recursion on %s (#%d). Cannot calculate table.", rule->name, i);
+		}
 	}
 
 	//Generate entries
@@ -106,6 +92,7 @@ void LL1TableCalculate(SyntacBook *book) {
 	}
 
 	//Validate the table, make sure no rules overlap
+	bool ambiguity = false;
 	for (int i = 0; i < book->ll1_table->entry_cnt; i++) {
 		struct stc_ll1_entry *ent1 = book->ll1_table->entries + i;
 		for (int j = i+1; j < book->ll1_table->entry_cnt; j++) {
@@ -113,16 +100,21 @@ void LL1TableCalculate(SyntacBook *book) {
 			if (ent1->rule_idx != ent2->rule_idx 
 					&& strcmp(ent1->nonterm, ent2->nonterm) == 0 
 					&& SetOverlaps(ent1->term, ent2->term)) {
-				printf("Rule %d:\n", ent1->rule_idx);
-				SetPrint(ent1->term);
+				if (warn_level >= HLT_VERBSE) {
+					printf("Rule %d:\n", ent1->rule_idx);
+					SetPrint(ent1->term);
 
-				printf("Rule %d:\n", ent2->rule_idx);
-				SetPrint(ent2->term);
+					printf("Rule %d:\n", ent2->rule_idx);
+					SetPrint(ent2->term);
+				}
 
-				HLT_ERR("Rule %d (%s) and %d (%s) have ambiguity (both rules can be applied when nonterm and specific term on stack)", ent1->rule_idx, ent1->nonterm, ent2->rule_idx, ent2->nonterm);
+				HLT_WRN(HLT_MJRWRN, "Rule %d (%s) and %d (%s) have ambiguity (both rules can be applied when nonterm and specific term on stack)", ent1->rule_idx, ent1->nonterm, ent2->rule_idx, ent2->nonterm);
+				ambiguity = true;
 			}
 		}
 	}
+
+	if (ambiguity) HLT_ERR("There was ambiguity with this LL1 Grammar. Fatal.");
 }
 
 /*

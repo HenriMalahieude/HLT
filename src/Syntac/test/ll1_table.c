@@ -147,19 +147,20 @@ bool LL1TableTest() {
 	}
 
 	print_test("Passed GeeksForGeeks Case");
-	return true;
 
 	//grammar2.stc
 	book1 = SyntacBookFromFile("../grammar2.stc");
 
 	firsts_of_book(book1);
 	follow_of_book(book1);
+	LL1TableCalculate(book1);
 
 	//TODO: test grammar2.stc
 	
 	SyntacBookFree(book1); book1 = NULL;
 	if (valid != test_count) {
-	
+		print_test("Passed grammar2.stc");
+		return false;
 	}
 
 	//grammer.stc Case (subset of C)
@@ -169,6 +170,13 @@ bool LL1TableTest() {
 	follow_of_book(book1);
 
 	//TODO: Test Grammer.stc
+	SyntacBookFree(book1); book1 = NULL;
+	if (valid != test_count) {
+		print_test("Passed grammar1.stc");
+		return false;
+	}
+
+	return true;
 }
 
 #ifndef ALL_TESTS

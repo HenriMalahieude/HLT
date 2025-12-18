@@ -40,32 +40,32 @@ bool FirstTest() {
 	
 	//Step 0.5: Recursion
 	book1 = SyntacBookAllocate();
-	SyntacBookRuleAdd(book1, "A", "B:A:A");
+	SyntacBookRuleAdd(book1, "A", "A:B");
+	SyntacBookRuleAdd(book1, "C", "B:C:B");
 	SyntacBookRuleAdd(book1, "B", "c");
 	SyntacBookRuleAdd(book1, "B", "");
-	SyntacBookRuleAdd(book1, "C", "B:C:d");
-	SyntacBookRuleAdd(book1, "D", "B:D:D:D:D:D:a");
-	valid += TEST(book1->rule_count, 5);
+	if (book1->rule_count != 4) {
+		print_test("SyntacBookRuleAdd did not add 4 rules as requested?");
+		return false;
+	}
 
 	firsts_of_book(book1);
 		
-	char **rec_a_b1 = SetCreate(2, "c", EPSILON);
+	char **rec_a_b1 = SetCreate(0);
 	valid += TEST_SET(book1->rules[0].first_set, rec_a_b1);
 	SetFree(rec_a_b1); rec_a_b1 = NULL;
 
-	char **rec_b1_b1 = SetCreate(1, "c");
-	valid += TEST_SET(book1->rules[1].first_set, rec_b1_b1);
-	SetFree(rec_b1_b1); rec_b1_b1 = NULL;
+	char **set_c_t05 = SetCreate(2, "c", EPSILON);
+	valid += TEST_SET(book1->rules[1].first_set, set_c_t05);
+	SetFree(set_c_t05); set_c_t05 = NULL;
 
-	valid += TEST_STRING(book1->rules[2].first_set[0], EPSILON);
-	
-	char **rec_c_b1 = SetCreate(2, "c", "d");
-	valid += TEST_SET(book1->rules[3].first_set, rec_c_b1);
-	SetFree(rec_c_b1); rec_c_b1 = NULL;
+	char **set_b_t05 = SetCreate(1, "c");
+	valid += TEST_SET(book1->rules[2].first_set, set_b_t05);
+	SetFree(set_b_t05); set_b_t05 = NULL;
 
-	char **rec_d_b1 = SetCreate(2, "c", "a");
-	valid += TEST_SET(book1->rules[4].first_set, rec_d_b1);
-	SetFree(rec_d_b1); rec_d_b1 = NULL;
+	set_b_t05 = SetCreate(1, EPSILON);
+	valid += TEST_SET(book1->rules[3].first_set, set_b_t05);
+	SetFree(set_b_t05); set_b_t05 = NULL;
 
 	SyntacBookFree(book1); book1 = NULL;
 	if (valid != test_count) {
@@ -212,6 +212,10 @@ bool FirstTest() {
 
 	//Step 3: Complicated File with many first tokens and some Epsilon tokens
 	SyntacBook *book3 = SyntacBookFromFile("../grammar2.stc");
+	if (book3->rule_count != 10) {
+		print_test("SyntacBookFromFile did not add 10 rules as requested?");
+		return false;
+	}
 	valid += TEST(book3->rule_count, 10);
 
 	firsts_of_book(book3);

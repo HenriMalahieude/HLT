@@ -1,7 +1,7 @@
 #include "syntac_internal.h"
 
 int find_starting_rule_from_none(struct stc_book *book) {
-	int start_rule = -1;	
+	int start_rule = -1;
 
 	for (int i = 0; i < book->rule_count; i++) {
 		bool contained = false;
@@ -15,7 +15,10 @@ int find_starting_rule_from_none(struct stc_book *book) {
 		}
 		if (!contained) {
 			if (start_rule < 0) start_rule = i;
-			else HLT_ERR("Grammar has multiple starting/top-level rules (#%d & #%d)? (Nonterm not in any other production)", start_rule, i);
+			else {
+				HLT_WRN(HLT_STDWRN, "Grammar has multiple starting/top-level rules (#%d & #%d)? (Nonterm not in any other production)", start_rule, i);
+				return -1; //idk which one to choose
+			}
 		}
 	}
 
@@ -28,7 +31,7 @@ int find_starting_rule_from_follows(struct stc_book *book) {
 	int start_rule = -1;
 	for (int i = 0; i < book->rule_count; i++) {
 		if (SetEquality(id, book->rules[i].follow_set)) { //identified the starting rule
-			if (start_rule != -1) HLT_ERR("Grammar has multiple starting/top-level rules? (Follow Set = { $ })");
+			if (start_rule != -1) HLT_WRN(HLT_STDWRN, "Grammar has multiple starting/top-level rules? (Follow Set = { $ })");
 			start_rule = i;
 		}
 	}
@@ -41,11 +44,12 @@ int find_starting_rule(struct stc_book *book) {
 	if (book->rule_count <= 0) return 0;
 
 	int start_rule = -1;
-	if (book->rules[0].follow_set != NULL) 	start_rule = find_starting_rule_from_none(book);
-	else 					start_rule = find_starting_rule_from_follows(book); //faster/easier to calculate
+	if (book->rules[0].follow_set != NULL) start_rule = find_starting_rule_from_follows(book); //faster/easier to calculate
+	
+	if (start_rule == -1) start_rule = find_starting_rule_from_none(book);
 
 	if (start_rule == -1) {
-		HLT_WRN(HLT_STDWRN, "Could not identify a starting symbol for grammar. Defaulting to first rule.");
+		HLT_WRN(HLT_STDWRN, "Could not identify a starting symbol for grammar. Defaulting to first rule (nonterm %s).", book->rules[0].name);
 		return 0;
 	}
 
