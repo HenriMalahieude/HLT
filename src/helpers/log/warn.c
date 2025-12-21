@@ -26,6 +26,7 @@ void HLTError(int line, int col, const char *format, ...) {
 	fprintf(stderr, ": ");
 
 	vfprintf(stderr, format, rest);
+	fprintf(stderr, "\n");
 	va_end(rest);
 	exit(1);
 }
