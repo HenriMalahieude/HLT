@@ -54,7 +54,7 @@ void LL1TableEntryInsert(struct stc_ll1_table *tbl, char *nontrm, char *trm, int
 
 	if (!match) LL1TableEntryAdd(tbl, nontrm, trm, rule_index);
 	else {
-		if (SetContains(match->term, trm)) HLT_WRN(HLT_STDWRN, "Terminal (%s) already exists within rule (%s:%d)?", trm, nontrm, rule_index);
+		if (SetContains(match->term, trm)) HLT_WRN(HLT_STDWRN, "Terminal (%s) already exists for LL1 Entry of Rule #%d (%s)?", trm, rule_index, nontrm);
 		SetAdd(&match->term, trm);
 	}
 }
@@ -79,15 +79,24 @@ void LL1TableCalculate(SyntacBook *book) {
 	
 	//For each rule
 	for (int i = 0; i < book->rule_count; i++) {
-		struct stc_rule *rule = book->rules + i; //for each element in the first set, create an entry
-		bool epsi_rule = SetContains(rule->first_set, EPSILON);
+		struct stc_rule *rule = book->rules + i; 
 
-		//If it's epsilon, apply to all follows, else to all firsts
-		char **set_to_work = (!(epsi_rule) ? rule->first_set : rule->follow_set);
-		for (int j = 0; set_to_work[j] != NULL; j++) {
-			char *elm = set_to_work[j]; //NOTE: will contain ENDMRKR in follow set, we want this
-			LL1TableEntryInsert(book->ll1_table, rule->name, elm, i);
-			HLT_WRN(HLT_DEBUG, "%s & %s apply %d (epsi? %d)", rule->name, elm, i, (int)epsi_rule);
+		bool epsi_rule = false; //SetContains(rule->first_set, EPSILON); //for each element in the first set, create an entry
+		for (int j = 0; rule->first_set[j] != NULL; j++) { 
+			if (strcmp(rule->first_set[j], EPSILON) == 0) {
+				epsi_rule = true;
+				continue;
+			}
+			LL1TableEntryInsert(book->ll1_table, rule->name, rule->first_set[j], i);
+			HLT_WRN(HLT_DEBUG, "%s & %s apply %d (firsts)", rule->name, rule->first_set[j], i);
+		}
+
+		//If epsilon in firsts, then we must apply rule to all follows as well
+		if (epsi_rule) {
+			for (int j = 0; rule->follow_set[j] != NULL; j++) { //may contain ENDMRKR, which is intentional behavior
+				LL1TableEntryInsert(book->ll1_table, rule->name, rule->follow_set[j], i);
+				HLT_WRN(HLT_DEBUG, "%s & %s apply %d (epsi? %d)", rule->name, rule->follow_set[j], i, (int)epsi_rule);
+			}
 		}
 	}
 
