@@ -20,9 +20,12 @@ DEPS := sets.o \
 INDV_TESTS := set book_ruleadd book_fromx first follow ll1_table
 INDV_EXE := $(addsuffix .out, $(INDV_TESTS))
 
-.PHONY: all_indv clean help
+.PHONY: all_indv clean
 .SUFFIXES: 
 .NOTINTERMEDIATE: $(DEPS)
+
+all:
+	$(info TODO)
 
 all_indv: $(INDV_EXE)
 
@@ -45,6 +48,7 @@ trim.o: $(HLP_DIR)/string/trim.c
 %.o: $(SRC_DIR)/%.c
 	$(CC) -c $< $(FLAGS) -I $(HLP_DIR)
 
-#clean:
-#-rm *.o 2>/dev/null || true
-#-rm $(INDV_TESTS) 2>/dev/null || true
+clean:
+	-rm *.o 2>/dev/null || true
+	-rm *.out 2>/dev/null || true
+	-rm *.exe 2>/dev/null || true

@@ -21,4 +21,4 @@ jobs:
     - name: Run tests
       run: |
         cd src/Lexic/test/_build/
-        ./all
+        ./all.out

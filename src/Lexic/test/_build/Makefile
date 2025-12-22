@@ -17,29 +17,19 @@ DEPS := warn.o		\
 
 #Also ordered in foundational
 INDV_TESTS := direct escaped brackets qualifier group or vocab name token
+INDV_EXES := $(addsuffix .out, $(INDV_TESTS))
 
-.PHONY: all all_indv clean help
+.PHONY: all all_indv clean
 .SUFFIXES: 
-
-NULL :=
-TAB := $(NULL)    $(NULL)
-define ENDL
-
-
-endef
-
-help:
-	$(info Indivdual Tests: $(ENDL)$(TAB)$(INDV_TESTS))
-	$(info Batch Build: $(ENDL)$(TAB)all_indv)
-	$(info Single Comprehensive Test: $(ENDL)$(TAB)all)
+.NOTINTERMEDIATE: $(DEPS)
 
 all: $(DEPS)
-	$(CC) -o $@ ../all_test.c $(addsuffix .c,$(addprefix ../,$(INDV_TESTS))) $(DEPS) -I $(HLP_DIR) -DALL_TESTS
+	$(CC) -o $@.out ../all_test.c $(addsuffix .c,$(addprefix ../,$(INDV_TESTS))) $(DEPS) -I $(HLP_DIR) -DALL_TESTS
 
-all_indv: $(INDV_TESTS)
+all_indv: $(INDV_EXES)
 
-$(INDV_TESTS): $(DEPS)
-	$(CC) -o $@ ../$@.c $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS) -I $(HLP_DIR)
+%.out: ../%.c $(DEPS)
+	$(CC) -o $@ $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS) -I $(HLP_DIR)
 
 #Helpers
 warn.o: $(HLP_DIR)/log/warn.c $(HLP_DIR)/log/warn.h
