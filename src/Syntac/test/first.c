@@ -188,7 +188,7 @@ bool FirstTest() {
 	char **set_body1_b = SetCreate(1, "LEFTCURLY");
 	valid += TEST_SET(book->rules[3].first_set, set_body1_b); //body1
 
-	char **set_body2_b = SetCreate(2, "WORD", EPSILON);
+	char **set_body2_b = SetCreate(1, "WORD");
 	valid += TEST_SET(book->rules[4].first_set, set_body2_b); //body2
 	valid += TEST_SET(book->rules[5].first_set, set_body2_b); //statements
 

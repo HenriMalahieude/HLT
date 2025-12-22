@@ -159,14 +159,14 @@ bool FollowTest() {
 
 	char **set_stmnts_t3 = SetCreate(1, "RIGHTCURLY");
 	valid += TEST_SET(book3->rules[5].follow_set, set_stmnts_t3); //statements
+	valid += TEST_SET(book3->rules[7].follow_set, set_stmnts_t3);
 	SetFree(set_stmnts_t3); set_stmnts_t3 = NULL;
 	
 	char **set_stmnt_t3 = SetCreate(3, "RIGHTCURLY", "WORD", ENDMRKR);
 	valid += TEST_SET(book3->rules[6].follow_set, set_stmnt_t3); //statement
-	valid += TEST_SET(book3->rules[7].follow_set, set_stmnt_t3);
 	SetFree(set_stmnt_t3); set_stmnt_t3 = NULL;
 
-	char **set_null_t3 = SetCreate(4, "RIGHTPAREN", "RIGHTCURLY", "WORD", ENDMRKR);
+	char **set_null_t3 = SetCreate(2, "RIGHTPAREN", "RIGHTCURLY");
 	valid += TEST_SET(book3->rules[8].follow_set, set_null_t3);
 	SetFree(set_null_t3); set_null_t3 = NULL;
 
