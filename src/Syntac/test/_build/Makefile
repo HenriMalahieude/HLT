@@ -18,14 +18,16 @@ DEPS := sets.o \
 	starting_rule.o
 
 INDV_TESTS := set book_ruleadd book_fromx first follow ll1_table
+INDV_EXE := $(addsuffix .out, $(INDV_TESTS))
 
 .PHONY: all_indv clean help
 .SUFFIXES: 
+.NOTINTERMEDIATE: $(DEPS)
 
-all_indv: $(INDV_TESTS)
+all_indv: $(INDV_EXE)
 
-$(INDV_TESTS): $(DEPS)
-	$(CC) -o $@ ../$@.c $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS) -I $(HLP_DIR)
+%.out: ../%.c $(DEPS)
+	$(CC) -o $@ $^ $(FLAGS) -DVERBOSE $(XTRA_FLAGS) -I $(HLP_DIR)
 
 #Helpers
 sets.o: $(HLP_DIR)/sets/sets.c
@@ -43,6 +45,6 @@ trim.o: $(HLP_DIR)/string/trim.c
 %.o: $(SRC_DIR)/%.c
 	$(CC) -c $< $(FLAGS) -I $(HLP_DIR)
 
-clean:
-	-@rm *.o 2>/dev/null || true
-	-@rm $(INDV_TESTS) 2>/dev/null || true
+#clean:
+#-rm *.o 2>/dev/null || true
+#-rm $(INDV_TESTS) 2>/dev/null || true
