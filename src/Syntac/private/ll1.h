@@ -22,6 +22,8 @@ struct stc_ll1_table {
 void LL1TableCalculate(SyntacBook *book);
 void LL1TableFree(struct stc_ll1_table *tbl);
 
+//TODO: Which is better? The bool mode or the normal tokens vs stream mode?
+//struct stc_tree_node * LL1Parse(struct stc_book *book, void *stream, bool isTokens);
 struct stc_tree_node * LL1ParseTokens(struct stc_book *book, void *stream);
 struct stc_tree_node * LL1ParseStream(struct stc_book *book, char **stream);
 
